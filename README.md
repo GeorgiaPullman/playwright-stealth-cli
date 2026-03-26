@@ -2,7 +2,7 @@
 
 English | [简体中文](./README.zh-CN.md)
 
-`playwright-stealth-cli` is a thin wrapper around the official Playwright CLI that keeps the upstream command surface while adding:
+`playwright-stealth-cli` is a thin wrapper around [`microsoft/playwright-cli`](https://github.com/microsoft/playwright-cli), published on npm as `@playwright/cli`. It keeps that upstream terminal command surface intact while adding:
 
 - `puppeteer-extra-plugin-stealth` enabled by default
 - temporary-profile defaults for safer one-off runs
@@ -104,8 +104,8 @@ playwright-stealth profile-status "/path/to/chromium-profile" --json
 
 Note:
 
-- `profile-list` only reports browser processes launched with this wrapper's internal management marker.
-- This makes it safer to inspect or terminate wrapper-managed browser processes later.
+- `profile-list` reports active wrapper-managed sessions from the upstream session registry.
+- `profile-status` checks whether a profile is in use by one of those active sessions.
 
 ## Defaults
 
@@ -176,25 +176,31 @@ Example:
 playwright-stealth open --channel chrome --profile-dir "/path/to/chrome-ext-profile"
 ```
 
-## Scope
+## Command Compatibility
 
-This wrapper is mainly intended for the browser-driving Playwright CLI commands such as:
+This wrapper delegates user-facing terminal commands to `@playwright/cli` instead of reimplementing them by hand. That is how it can follow upstream updates with minimal local code changes.
 
-- `open`
-- `codegen`
-- `screenshot`
-- `pdf`
-- `cr`
-- `ff`
-- `wk`
+The upstream command families are preserved, including:
 
-The upstream Playwright CLI command surface is still present because this project delegates to the official CLI program instead of forking it.
+- Core: `open`, `close`, `goto`, `type`, `click`, `dblclick`, `fill`, `drag`, `hover`, `select`, `upload`, `check`, `uncheck`, `snapshot`, `eval`, `dialog-accept`, `dialog-dismiss`, `resize`, `delete-data`
+- Navigation: `go-back`, `go-forward`, `reload`
+- Keyboard: `press`, `keydown`, `keyup`
+- Mouse: `mousemove`, `mousedown`, `mouseup`, `mousewheel`
+- Save as: `screenshot`, `pdf`
+- Tabs: `tab-list`, `tab-new`, `tab-close`, `tab-select`
+- Storage: `state-load`, `state-save`, `cookie-*`, `localstorage-*`, `sessionstorage-*`
+- Network and DevTools: `route`, `route-list`, `unroute`, `console`, `run-code`, `network`, `tracing-*`, `video-*`, `show`, `devtools-start`
+- Install and session management: `install`, `install-browser`, `list`, `close-all`, `kill-all`
+
+Wrapper-only additions:
+
+- `profile-list`
+- `profile-status`
 
 Important:
 
-- `playwright-stealth test` still exposes the upstream Playwright Test command entry.
-- Do not assume Playwright Test automatically inherits this wrapper's stealth/profile/extension behavior.
-- Treat the stealth/profile/extension additions as targeting the browser-driving CLI commands listed above.
+- This is not based on the npm `playwright` test runner CLI.
+- `playwright-stealth` is meant to preserve the `microsoft/playwright-cli` terminal workflow and add stealth/profile/extension behavior around it.
 
 ## Local Development
 

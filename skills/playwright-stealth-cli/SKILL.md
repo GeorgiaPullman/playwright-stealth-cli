@@ -1,5 +1,5 @@
 name: playwright-stealth-cli
-description: Uses playwright-stealth-cli for browser-driving Playwright CLI commands with stealth enabled by default, temporary-profile defaults, explicit persistent profiles, and Chromium extension support. Use when the user wants Playwright CLI-style browser launching with lower automation fingerprints, persistent login profiles, or Chromium extension loading.
+description: Uses playwright-stealth-cli, a thin wrapper around microsoft/playwright-cli (@playwright/cli), preserving the upstream terminal command set while adding default Chromium stealth, temporary profiles, explicit persistent profiles, Chromium extension loading, and profile status helpers.
 allowed-tools: Bash
 
 # Browser Automation with playwright-stealth-cli
@@ -8,13 +8,21 @@ allowed-tools: Bash
 
 Use this skill when the user wants:
 
-- Playwright CLI browser-driving commands such as `open`, `codegen`, `screenshot`, `pdf`, `cr`, `ff`, or `wk`
-- stealth enabled by default
-- a quick temporary-profile run
-- a persistent profile for login flows
+- the terminal command style from `microsoft/playwright-cli`
+- commands such as `open`, `goto`, `click`, `fill`, `upload`, `snapshot`, `tab-*`, `cookie-*`, `localstorage-*`, `network`, `run-code`, or `close-all`
+- default Chromium stealth
+- temporary profiles for one-off runs
+- explicit persistent profiles for login flows
 - unpacked Chromium extension loading
 
-Do not assume this skill automatically applies to `playwright test`.
+## Upstream compatibility
+
+This wrapper is intentionally built as a thin layer around `@playwright/cli`, which is the npm package for `microsoft/playwright-cli`.
+
+That matters for two reasons:
+
+- the upstream terminal command set stays intact instead of being reimplemented by hand
+- upstream updates can be adopted by upgrading `@playwright/cli`, without rewriting the whole command surface here
 
 ## Command name
 
@@ -30,34 +38,134 @@ Local development entry point:
 node ./cli.js
 ```
 
-## Quick start
+## Upstream command set
 
-```bash
-# open with default behavior: chromium + stealth + temporary profile
-playwright-stealth open https://example.com
+This wrapper keeps the upstream command families from `microsoft/playwright-cli`.
 
-# open with a persistent Chromium profile
-playwright-stealth open --profile-dir "/path/to/chromium-main" https://example.com
+Core:
 
-# use stock Chrome
-playwright-stealth open --channel chrome --profile-dir "/path/to/chrome-main" https://example.com
+- `open`
+- `close`
+- `goto`
+- `type`
+- `click`
+- `dblclick`
+- `fill`
+- `drag`
+- `hover`
+- `select`
+- `upload`
+- `check`
+- `uncheck`
+- `snapshot`
+- `eval`
+- `dialog-accept`
+- `dialog-dismiss`
+- `resize`
+- `delete-data`
 
-# disable stealth explicitly
-playwright-stealth open --disable-stealth https://example.com
-```
+Navigation:
+
+- `go-back`
+- `go-forward`
+- `reload`
+
+Keyboard:
+
+- `press`
+- `keydown`
+- `keyup`
+
+Mouse:
+
+- `mousemove`
+- `mousedown`
+- `mouseup`
+- `mousewheel`
+
+Save as:
+
+- `screenshot`
+- `pdf`
+
+Tabs:
+
+- `tab-list`
+- `tab-new`
+- `tab-close`
+- `tab-select`
+
+Storage:
+
+- `state-load`
+- `state-save`
+- `cookie-list`
+- `cookie-get`
+- `cookie-set`
+- `cookie-delete`
+- `cookie-clear`
+- `localstorage-list`
+- `localstorage-get`
+- `localstorage-set`
+- `localstorage-delete`
+- `localstorage-clear`
+- `sessionstorage-list`
+- `sessionstorage-get`
+- `sessionstorage-set`
+- `sessionstorage-delete`
+- `sessionstorage-clear`
+
+Network:
+
+- `route`
+- `route-list`
+- `unroute`
+- `network`
+
+DevTools and debugging:
+
+- `console`
+- `run-code`
+- `tracing-start`
+- `tracing-stop`
+- `video-start`
+- `video-stop`
+- `show`
+- `devtools-start`
+
+Install and sessions:
+
+- `install`
+- `install-browser`
+- `list`
+- `close-all`
+- `kill-all`
+
+Wrapper-only additions:
+
+- `profile-list`
+- `profile-status`
+
+## Wrapper defaults and extras
+
+- Default browser for `open` is `chromium`.
+- Stealth is enabled by default for Chromium.
+- Default `open` behavior uses a temporary profile.
+- Old `playwright-cli-profile-*` temp folders are cleaned up on startup when possible.
+- `--profile-dir` is an alias for an explicit persistent profile.
+- `--channel` is an alias of upstream `--browser`.
+- `--extension-path` loads unpacked Chromium extensions.
+- `--force-profile` skips the profile-in-use confirmation.
 
 ## Profile rules
 
-- Default mode uses a temporary profile.
-- Old `playwright-cli-profile-*` temp folders are cleaned up on startup when possible.
-- For login flows and long-lived state, prefer `--profile-dir`.
+- Prefer `--profile-dir` for login flows and long-lived state.
 - Keep Chrome and Chromium profiles separate.
 - Do not reuse the same profile directory between Chrome and Chromium.
 - The CLI can list active browser/profile pairs with `playwright-stealth profile-list`.
-- The CLI can emit machine-readable process/profile output with `playwright-stealth profile-list --json`.
+- The CLI can emit machine-readable output with `playwright-stealth profile-list --json`.
 - The CLI can check a specific profile with `playwright-stealth profile-status "/path/to/profile"`.
 - If a profile appears busy, the CLI will ask before continuing unless `--force-profile` is used.
-- `profile-list` only reports wrapper-managed browser processes marked by this CLI.
 
 Recommended naming:
 
@@ -80,29 +188,32 @@ Chrome is different:
 - For stock Chrome, use a persistent profile and install the extension manually through `chrome://extensions/`.
 - Reuse that same Chrome profile on later runs.
 
-## Important limits
-
-- Treat the stealth/profile/extension additions as targeting browser-driving CLI commands.
-- `playwright-stealth test` still exposes upstream Playwright Test, but should not be treated as automatically inheriting this wrapper's stealth behavior.
-- If a user specifically needs browser extensions in Chrome, recommend a persistent Chrome profile and manual installation.
-- Agents using this CLI should fully close the browser when done.
-- Agents should periodically check `playwright-stealth profile-list` for leftover browser processes.
-
 ## Good examples
 
 ```bash
-# one-off login test
-playwright-stealth open https://x.com/i/flow/login
+# default: chromium + stealth + temporary profile
+playwright-stealth open https://example.com
 
-# persistent Chromium login profile
-playwright-stealth open --profile-dir "/path/to/chromium-login" https://x.com/i/flow/login
+# use Chrome with a persistent profile
+playwright-stealth open --channel chrome --profile-dir "/path/to/chrome-main" https://example.com
 
-# persistent Chrome login profile
-playwright-stealth open --channel chrome --profile-dir "/path/to/chrome-login" https://x.com/i/flow/login
+# open then drive with upstream commands
+playwright-stealth open https://example.com
+playwright-stealth snapshot
+playwright-stealth click r12
+playwright-stealth fill r17 "hello"
 
 # Chromium with unpacked extension
 playwright-stealth open --profile-dir "/path/to/chromium-ext" --extension-path "/path/to/ext"
 ```
+
+## Agent guidance
+
+- Use the upstream terminal commands directly when they already express the workflow.
+- Do not claim a command is unavailable if it is part of the upstream command set listed above.
+- If a task requires logic that the CLI command language still cannot express cleanly, switch to Playwright code only for that part.
+- Fully close the browser when done.
+- Periodically run `playwright-stealth profile-list` to check for leftover browser processes.
 
 ## Reference
 

@@ -2,7 +2,7 @@
 
 [English](./README.md) | 简体中文
 
-`playwright-stealth-cli` 是基于官方 Playwright CLI 的一层轻量封装。它尽量保留上游命令能力，同时补充了这些增强：
+`playwright-stealth-cli` 是基于 [`microsoft/playwright-cli`](https://github.com/microsoft/playwright-cli) 的一层轻量封装；它在 npm 上对应的上游包是 `@playwright/cli`。本项目尽量原样保留那套终端命令能力，同时补充了这些增强：
 
 - 默认启用 `puppeteer-extra-plugin-stealth`
 - 默认使用临时 profile，适合一次性运行
@@ -104,8 +104,8 @@ playwright-stealth profile-status "/path/to/chromium-profile" --json
 
 注意：
 
-- `profile-list` 现在只会列出带有本项目内部标记的受管浏览器进程。
-- 这样后续筛选或清理时会更安全，不会把系统里其他 Chromium 内核程序混进来。
+- `profile-list` 现在会从上游 session registry 中列出当前活跃的受管会话。
+- `profile-status` 会检查某个 profile 是否正被这些活跃会话占用。
 
 ## 默认行为
 
@@ -176,25 +176,31 @@ Chrome 则不同：
 playwright-stealth open --channel chrome --profile-dir "/path/to/chrome-ext-profile"
 ```
 
-## 适用范围
+## 命令兼容性
 
-这个封装主要面向 Playwright CLI 中“直接驱动浏览器”的命令，例如：
+本项目把用户侧的终端命令直接委托给 `@playwright/cli`，而不是手动重写一套命令解析。这也是它能随着上游更新而更新的关键。
 
-- `open`
-- `codegen`
-- `screenshot`
-- `pdf`
-- `cr`
-- `ff`
-- `wk`
+保留下来的上游命令族包括：
 
-由于本项目是委托官方 CLI 程序执行，而不是 fork 一整套 CLI，所以原版 Playwright CLI 的命令面大体仍然保留。
+- Core：`open`、`close`、`goto`、`type`、`click`、`dblclick`、`fill`、`drag`、`hover`、`select`、`upload`、`check`、`uncheck`、`snapshot`、`eval`、`dialog-accept`、`dialog-dismiss`、`resize`、`delete-data`
+- Navigation：`go-back`、`go-forward`、`reload`
+- Keyboard：`press`、`keydown`、`keyup`
+- Mouse：`mousemove`、`mousedown`、`mouseup`、`mousewheel`
+- Save as：`screenshot`、`pdf`
+- Tabs：`tab-list`、`tab-new`、`tab-close`、`tab-select`
+- Storage：`state-load`、`state-save`、`cookie-*`、`localstorage-*`、`sessionstorage-*`
+- Network / DevTools：`route`、`route-list`、`unroute`、`console`、`run-code`、`network`、`tracing-*`、`video-*`、`show`、`devtools-start`
+- 安装与会话管理：`install`、`install-browser`、`list`、`close-all`、`kill-all`
 
-但要特别注意：
+本项目额外新增：
 
-- `playwright-stealth test` 仍然会暴露上游 Playwright Test 的命令入口
-- 不要假设 `playwright test` 会自动继承本项目的 stealth/profile/extension 行为
-- 这些增强主要应当理解为作用于上面列出的浏览器驱动类命令
+- `profile-list`
+- `profile-status`
+
+需要特别注意：
+
+- 这里对齐的是 `microsoft/playwright-cli` 这套终端命令，不是 npm `playwright` test runner CLI。
+- `playwright-stealth` 的定位是保留 `microsoft/playwright-cli` 的命令式工作流，并在外层增加 stealth / profile / extension 能力。
 
 ## 作为项目开发时的注意事项
 

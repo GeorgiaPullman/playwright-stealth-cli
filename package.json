@@ -1,6 +1,6 @@
 {
   "name": "playwright-stealth-cli",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A thin Playwright CLI wrapper with stealth, extension loading, and persistent profile support.",
   "main": "lib/cli-wrapper.js",
   "homepage": "https://github.com/GeorgiaPullman/playwright-stealth-cli#readme",
@@ -36,7 +36,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "playwright": "^1.58.2",
+    "@playwright/cli": "^0.1.1",
     "playwright-extra": "^4.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2"
   }

@@ -1,7 +1,7 @@
 "use strict";
 
 const assert = require("assert");
-const { normalizeArgv, parseCustomConfig } = require("../lib/cli-wrapper");
+const { normalizeArgv, parseOpenConfig } = require("../lib/cli-wrapper");
 const { execFileSync } = require("child_process");
 
 const defaultArgv = [
@@ -9,11 +9,13 @@ const defaultArgv = [
   "cli.js",
   "open"
 ];
-const defaultConfig = parseCustomConfig(defaultArgv);
+const defaultConfig = parseOpenConfig(defaultArgv);
 assert.equal(defaultConfig.stealthEnabled, true);
 assert.equal(defaultConfig.useTemporaryProfile, true);
 assert.ok(defaultConfig.profileDir.includes("playwright-cli-profile-"));
-assert.equal(normalizeArgv(defaultArgv, defaultConfig).includes("--user-data-dir"), true);
+assert.equal(normalizeArgv(defaultArgv, defaultConfig).includes("--profile"), true);
+assert.equal(normalizeArgv(defaultArgv, defaultConfig).includes("--persistent"), true);
+assert.equal(normalizeArgv(defaultArgv, defaultConfig).includes("--browser"), true);
 
 const profileArgv = [
   "node",
@@ -23,20 +25,22 @@ const profileArgv = [
   "./profiles/demo",
   "--disable-stealth"
 ];
-const profileConfig = parseCustomConfig(profileArgv);
+const profileConfig = parseOpenConfig(profileArgv);
 
 assert.equal(profileConfig.stealthEnabled, false);
 assert.equal(profileConfig.profileDir.endsWith("/profiles/demo"), true);
 
 const normalizedProfileArgv = normalizeArgv(profileArgv, profileConfig);
-assert.deepEqual(normalizedProfileArgv.slice(0, 6), [
+assert.deepEqual(normalizedProfileArgv.slice(0, 7), [
   "node",
   "cli.js",
   "open",
-  "--user-data-dir",
+  "--profile",
   "./profiles/demo",
-  "--disable-stealth"
+  "--browser",
+  "chromium"
 ]);
+assert.equal(normalizedProfileArgv.includes("--persistent"), true);
 
 const extensionArgv = [
   "node",
@@ -46,14 +50,14 @@ const extensionArgv = [
   "./extensions/a",
   "--extension-path=./extensions/b"
 ];
-const extensionConfig = parseCustomConfig(extensionArgv);
+const extensionConfig = parseOpenConfig(extensionArgv);
 
 assert.equal(extensionConfig.stealthEnabled, true);
 assert.equal(extensionConfig.extensionPaths.length, 2);
 assert.ok(extensionConfig.profileDir.includes("playwright-cli-profile-"));
 
 const normalizedExtensionArgv = normalizeArgv(extensionArgv, extensionConfig);
-assert.equal(normalizedExtensionArgv.includes("--user-data-dir"), true);
+assert.equal(normalizedExtensionArgv.includes("--profile"), true);
 
 const temporaryArgv = [
   "node",
@@ -61,7 +65,7 @@ const temporaryArgv = [
   "open",
   "--temp-profile"
 ];
-const temporaryConfig = parseCustomConfig(temporaryArgv);
+const temporaryConfig = parseOpenConfig(temporaryArgv);
 assert.equal(temporaryConfig.useTemporaryProfile, true);
 assert.ok(temporaryConfig.profileDir.includes("playwright-cli-profile-"));
 
@@ -72,13 +76,17 @@ const chromeArgv = [
   "--channel",
   "chrome"
 ];
-const chromeConfig = parseCustomConfig(chromeArgv);
-assert.equal(chromeConfig.channel, "chrome");
+const chromeConfig = parseOpenConfig(chromeArgv);
+assert.equal(chromeConfig.browser, "chrome");
 assert.ok(chromeConfig.profileDir.includes("playwright-cli-profile-"));
-assert.equal(normalizeArgv(chromeArgv, chromeConfig).includes("--user-data-dir"), true);
+assert.equal(normalizeArgv(chromeArgv, chromeConfig).includes("--profile"), true);
 
 const rootHelp = execFileSync("node", ["./cli.js", "--help"], { cwd: __dirname + "/..", encoding: "utf8" });
 assert.ok(rootHelp.includes("profile-list"));
-assert.ok(rootHelp.includes("profile-status [options] <directory>"));
+assert.ok(rootHelp.includes("goto <url>"));
+
+const openHelp = execFileSync("node", ["./cli.js", "open", "--help"], { cwd: __dirname + "/..", encoding: "utf8" });
+assert.ok(openHelp.includes("--disable-stealth"));
+assert.ok(openHelp.includes("--extension-path <dir>"));
 
 console.log("smoke ok");
