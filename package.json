@@ -23,7 +23,7 @@
     "test": "node ./test/smoke.js"
   },
   "bin": {
-    "playwright-stealth": "./cli.js"
+    "playwright-stealth": "cli.js"
   },
   "keywords": [
     "playwright",
