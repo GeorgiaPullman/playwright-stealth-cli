@@ -96,6 +96,12 @@ playwright-stealth profile-list --json
 playwright-stealth profile-status "/path/to/chromium-profile"
 ```
 
+机器可读 JSON 输出：
+
+```bash
+playwright-stealth profile-status "/path/to/chromium-profile" --json
+```
+
 注意：
 
 - `profile-list` 现在只会列出带有本项目内部标记的受管浏览器进程。

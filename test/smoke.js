@@ -79,6 +79,6 @@ assert.equal(normalizeArgv(chromeArgv, chromeConfig).includes("--user-data-dir")
 
 const rootHelp = execFileSync("node", ["./cli.js", "--help"], { cwd: __dirname + "/..", encoding: "utf8" });
 assert.ok(rootHelp.includes("profile-list"));
-assert.ok(rootHelp.includes("profile-status <directory>"));
+assert.ok(rootHelp.includes("profile-status [options] <directory>"));
 
 console.log("smoke ok");

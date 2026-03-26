@@ -96,6 +96,12 @@ Check whether a profile is already in use:
 playwright-stealth profile-status "/path/to/chromium-profile"
 ```
 
+Machine-readable status:
+
+```bash
+playwright-stealth profile-status "/path/to/chromium-profile" --json
+```
+
 Note:
 
 - `profile-list` only reports browser processes launched with this wrapper's internal management marker.

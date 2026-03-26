@@ -3,6 +3,14 @@
   "version": "1.0.0",
   "description": "A thin Playwright CLI wrapper with stealth, extension loading, and persistent profile support.",
   "main": "lib/cli-wrapper.js",
+  "homepage": "https://github.com/GeorgiaPullman/playwright-stealth-cli#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GeorgiaPullman/playwright-stealth-cli.git"
+  },
+  "bugs": {
+    "url": "https://github.com/GeorgiaPullman/playwright-stealth-cli/issues"
+  },
   "files": [
     "cli.js",
     "lib/",
@@ -17,9 +25,16 @@
   "bin": {
     "playwright-stealth": "./cli.js"
   },
-  "keywords": [],
+  "keywords": [
+    "playwright",
+    "cli",
+    "stealth",
+    "browser-automation",
+    "chromium",
+    "chrome"
+  ],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "playwright": "^1.58.2",
     "playwright-extra": "^4.3.6",
