@@ -157,6 +157,26 @@ Wrapper-only additions:
 - `--extension-path` loads unpacked Chromium extensions.
 - `--force-profile` skips the profile-in-use confirmation.
 
+## Tabs and popups
+
+When a site opens a new tab, popup, or login window, this CLI handles it through the upstream tab commands.
+
+Important behavior:
+
+- use `tab-list` to inspect current tabs
+- use `tab-select <index>` to switch the active tab
+- subsequent commands operate on the currently selected tab
+- there is no separate Selenium-style window handle API here; the normal switching model is tab index based
+
+Good pattern after a click that opens a new page:
+
+```bash
+playwright-stealth click r12
+playwright-stealth tab-list
+playwright-stealth tab-select 1
+playwright-stealth snapshot
+```
+
 ## Profile rules
 
 - Prefer `--profile-dir` for login flows and long-lived state.

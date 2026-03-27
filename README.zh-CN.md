@@ -224,3 +224,38 @@ npm test
 - 用完浏览器后，尽量彻底关闭它。
 - 如果是 agent 或脚本长期使用，建议定期执行 `playwright-stealth profile-list` 检查是否还有残留浏览器进程。
 - 不同工作流或不同账号，最好分别使用独立的持久化 profile，避免争用。
+
+## 上游升级说明
+
+这个项目的设计目标之一，就是让大多数上游命令更新主要通过升级 `@playwright/cli` 来获得，而不是再次手动复制整套命令。
+
+实际含义是：
+
+- 用户看到的终端命令集通常会自动跟着上游走。
+- 上游新增命令或调整 help 输出时，通常不需要重写这层封装。
+- 本地代码主要只处理参数归一化、profile 管理，以及 daemon / browser 启动时的增强注入。
+
+不过它仍然是基于部分上游内部模块的薄封装，所以升级并不是绝对零风险。
+
+通常只升级包就足够的情况：
+
+- 命令覆盖范围变化
+- help 文案变化
+- 轻量 CLI 行为调整
+
+仍可能需要少量本地适配的情况：
+
+- 上游内部文件路径变化
+- session 配置结构变化
+- daemon 启动流程变化
+- browser context factory 行为变化
+- config 解析内部实现变化
+
+推荐的升级流程：
+
+1. 升级 `@playwright/cli`
+2. 运行 `npm test`
+3. 检查 `playwright-stealth --help`
+4. 检查 `playwright-stealth open --help`
+5. 跑一条基础浏览器链路，例如 `open -> goto -> close-all`
+6. 再验证我们自定义的增强能力，例如 stealth、持久化 profile、`--extension-path`

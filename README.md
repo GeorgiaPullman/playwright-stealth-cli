@@ -223,4 +223,39 @@ Operational advice:
 - If you automate this CLI from an agent or script, periodically run `playwright-stealth profile-list` to check for leftover browser processes.
 - Prefer separate persistent profiles per workflow or account to avoid accidental profile contention.
 
+## Upgrading Upstream
+
+This project is designed so that most upstream command changes come from upgrading `@playwright/cli`, rather than manually copying commands again.
+
+In practice that means:
+
+- The user-facing terminal command set usually follows upstream automatically.
+- Upstream additions to commands and help output usually do not require rewriting this wrapper.
+- Our local code mainly patches argument normalization, profile handling, and daemon/browser launch behavior.
+
+However, this is still a thin wrapper around some upstream internal modules, so upgrades are not completely zero-risk.
+
+Usually, a package upgrade is enough when upstream only changes:
+
+- command coverage
+- help text
+- minor CLI behavior
+
+You should still expect a small compatibility fix if upstream changes:
+
+- internal file paths
+- session config structure
+- daemon startup flow
+- browser context factory behavior
+- config parsing internals
+
+Recommended upgrade flow:
+
+1. Upgrade `@playwright/cli`.
+2. Run `npm test`.
+3. Verify `playwright-stealth --help`.
+4. Verify `playwright-stealth open --help`.
+5. Run a basic browser flow such as `open -> goto -> close-all`.
+6. Re-check wrapper-specific features such as stealth, persistent profiles, and `--extension-path`.
+
 Publishable package files are restricted in `package.json` via the `files` field, so local development artifacts like `artifacts/`, `scripts/`, and `test/` are not uploaded to npm.

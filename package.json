@@ -1,6 +1,6 @@
 {
   "name": "playwright-stealth-cli",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A thin Playwright CLI wrapper with stealth, extension loading, and persistent profile support.",
   "main": "lib/cli-wrapper.js",
   "homepage": "https://github.com/GeorgiaPullman/playwright-stealth-cli#readme",
