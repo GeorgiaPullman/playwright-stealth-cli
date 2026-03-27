@@ -231,6 +231,7 @@ playwright-stealth open --profile-dir "/path/to/chromium-ext" --extension-path "
 
 - Use the upstream terminal commands directly when they already express the workflow.
 - Do not claim a command is unavailable if it is part of the upstream command set listed above.
+- For input flows, it is acceptable to trigger a focus action after typing or filling when that makes the interaction more reliable.
 - If a task requires logic that the CLI command language still cannot express cleanly, switch to Playwright code only for that part.
 - Fully close the browser when done.
 - Periodically run `playwright-stealth profile-list` to check for leftover browser processes.
