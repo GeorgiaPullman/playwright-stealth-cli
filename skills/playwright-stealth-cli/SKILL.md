@@ -1,5 +1,5 @@
 name: playwright-stealth-cli
-description: Uses playwright-stealth-cli, a thin wrapper around microsoft/playwright-cli (@playwright/cli), preserving the upstream terminal command set while adding default Chromium stealth, temporary profiles, explicit persistent profiles, Chromium extension loading, and profile status helpers.
+description: Uses playwright-stealth-cli, a thin wrapper around microsoft/playwright-cli (@playwright/cli), for any task that needs browser operations or browser automation. Use when Codex needs to open a browser, navigate, click, fill, inspect, capture, manage tabs, storage, or network, or otherwise drive a browser session, while preferring branded Chrome and choosing persistent or temporary profiles based on the task.
 allowed-tools: Bash
 
 # Browser Automation with playwright-stealth-cli
@@ -8,11 +8,12 @@ allowed-tools: Bash
 
 Use this skill when the user wants:
 
+- any browser operation or browser automation task
 - the terminal command style from `microsoft/playwright-cli`
 - commands such as `open`, `goto`, `click`, `fill`, `upload`, `snapshot`, `tab-*`, `cookie-*`, `localstorage-*`, `network`, `run-code`, or `close-all`
-- default Chromium stealth
-- temporary profiles for one-off runs
-- explicit persistent profiles for login flows
+- default branded Chrome
+- persistent profiles when needed
+- temporary profiles for isolated runs
 - unpacked Chromium extension loading
 
 ## Upstream compatibility
@@ -37,6 +38,16 @@ Local development entry point:
 ```bash
 node ./cli.js
 ```
+
+## Default runtime
+
+Default browser and profile strategy:
+
+```bash
+playwright-stealth open --channel chrome https://example.com
+```
+
+Prefer branded Chrome by default. Choose a persistent profile for login flows or long-lived state, and choose a temporary profile for isolated one-off runs unless the user asks for something specific.
 
 ## Upstream command set
 
@@ -148,9 +159,10 @@ Wrapper-only additions:
 
 ## Wrapper defaults and extras
 
-- Default browser for `open` is `chromium`.
+- Prefer branded Chrome via `--channel chrome` for normal runs.
+- Choose persistent profiles when the task benefits from saved login state or long-lived browser state.
+- Choose temporary profiles when the user wants an isolated one-off session.
 - Stealth is enabled by default for Chromium.
-- Default `open` behavior uses a temporary profile.
 - Old `playwright-cli-profile-*` temp folders are cleaned up on startup when possible.
 - `--profile-dir` is an alias for an explicit persistent profile.
 - `--channel` is an alias of upstream `--browser`.
@@ -179,7 +191,7 @@ playwright-stealth snapshot
 
 ## Profile rules
 
-- Prefer `--profile-dir` for login flows and long-lived state.
+- Pick a profile path intentionally for login flows and long-lived state instead of assuming a single fixed default path.
 - Keep Chrome and Chromium profiles separate.
 - Do not reuse the same profile directory between Chrome and Chromium.
 - The CLI can list active browser/profile pairs with `playwright-stealth profile-list`.
@@ -211,8 +223,8 @@ Chrome is different:
 ## Good examples
 
 ```bash
-# default: chromium + stealth + temporary profile
-playwright-stealth open https://example.com
+# default: branded Chrome
+playwright-stealth open --channel chrome https://example.com
 
 # use Chrome with a persistent profile
 playwright-stealth open --channel chrome --profile-dir "/path/to/chrome-main" https://example.com
