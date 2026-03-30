@@ -89,4 +89,8 @@ const openHelp = execFileSync("node", ["./cli.js", "open", "--help"], { cwd: __d
 assert.ok(openHelp.includes("--disable-stealth"));
 assert.ok(openHelp.includes("--extension-path <dir>"));
 
+const installHelp = execFileSync("node", ["./cli.js", "install", "--help"], { cwd: __dirname + "/..", encoding: "utf8" });
+assert.ok(installHelp.includes("ensure browsers necessary for this version of Playwright are installed"));
+assert.ok(installHelp.includes("--with-deps"));
+
 console.log("smoke ok");
